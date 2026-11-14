@@ -1,0 +1,42 @@
+name: SonarQube Cloud
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  sonar:
+    name: Build, test y análisis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (historial completo para Sonar)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Angular 11 / webpack 4 requiere Node 14.
+      - name: Node.js 14
+        uses: actions/setup-node@v4
+        with:
+          node-version: 14
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar
+        run: npm run build
+
+      - name: Pruebas unitarias con cobertura
+        run: npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI --karma-config=karma.ci.conf.js
+
+      - name: Análisis SonarQube Cloud
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
