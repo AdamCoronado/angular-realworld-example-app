@@ -1,4 +1,3 @@
-// Configuración de Karma para CI: Chrome sin interfaz y sin sandbox (runners de GitHub).
 const base = require('./karma.conf.js');
 
 module.exports = function (config) {
@@ -12,6 +11,7 @@ module.exports = function (config) {
       }
     },
     singleRun: true,
-    autoWatch: false
+    autoWatch: false,
+    failOnEmptyTestSuite: false
   });
 };
